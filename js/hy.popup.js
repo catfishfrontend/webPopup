@@ -2,121 +2,90 @@
     $.fn.realert = function(options){  //一个按钮的弹窗
         var defaults = { //默认参数
             backgroundcolor : "#72D1FF",
-            text : '这是默认值',
+            text : '',
             color:'#60B0D1',
+            prompt:'提示',
+            img:"none",
             width:371,
-            height:183,
-            img:"none"
+            button:'show',
+            content:'',
+            click:function(){
+
+            }
         };
         options = $.extend(defaults,options);
         var nodeParent = $("<div class='parentbox'></div>"); //弹出层遮罩层节点
-    	var nodeBox = $("<div class='alertbox'></div>"); //弹出框节点
-    	var contentBox = $("<div class='contentBox'><i></i><span>" + options.text + "</span></div>"); //弹出框内容节点
-    	var nodeWrapp = $("<div class='wrappbox'>提示</div>"); 
-    	var confirmBox = $("<div class='confirmbox'></div>"); //弹出框按钮父节点
-    	var confirmButton = $("<div class='confirmbutton'>确定</div>"); //按钮节点
+        var nodeBox = $("<div class='alertbox'></div>"); //弹出框节点
+        var contentBox = $("<div class='contentbox'><i></i><span>" + options.text + "</span></div>"); //弹出框内容节点
+        var nodeWrapp = $("<div class='wrappbox'>"+options.prompt+"</div>"); 
+        var confirmBox = $("<div class='confirmbox'></div>"); //弹出框按钮父节点
+        var confirmButton = $("<div class='confirmbutton'>确定</div>"); //按钮节点
+        var nodeClose = $("<span class='closeicon'>×</span>");
+        var nodeform = $(options.content);
         $('body').prepend(nodeParent);  //将节点插入文档
         nodeBox.append(contentBox);
         nodeBox.append(confirmBox);
         confirmBox.append(confirmButton);
         nodeParent.prepend(nodeBox);
         nodeBox.prepend(nodeWrapp);
-        nodeParent.css({       //设置各节点样式
-        	width:100+'%',
-        	height:100+'%',
-        	'background-color':'rgba(0,0,0,0.3)',
-        	position:'fixed',
-        	top:0,
-        	left:0,
-        	'z-index':'999999'
-        });
+        contentBox.after(nodeform);
+        nodeBox.append(nodeClose);
         nodeBox.css({
-        	position:'fixed',
-        	width:371,
-        	height:183,
-        	'background-color':'#fff',
-        	'border-radius':5+'px',
+            width:options.width,
         });
         nodeWrapp.css({
-        	position:'relative',
-        	width:100 +'%',
-        	height:50,
-        	'background-color':options.backgroundcolor,
-        	'border-radius':5+'px',
-        	'line-height':50+'px',
-        	color:'#fff',
-        	'padding-left':20,
+            'background-color':options.backgroundcolor,
         });
         contentBox.css({
-        	'text-align':'center',
-        	'padding':'20px 0',
-        	'color':options.color
-        });
-        contentBox.children('i').css({
-        	display:'inline-block',
-        	width:30,
-        	height:30,
-        	'background':"url('../img/icon.png') no-repeat",
-        	'vertical-align': 'top',
-        	'margin-right':'10px'
-        });
-        contentBox.children('span').css({
-        	'vertical-align': 'sub'
-        })
-        confirmBox.css({
-        	height:40,
-        	width:50+'%',
-        	'margin-left':'25%',
-        	'text-align':'center'
-        });
-        confirmButton.css({
-        	'display':'inline-block',
-        	height:30,
-        	'line-height':'30px',
-        	padding:'0 15px',
-        	color:'#fff',
-        	'margin-top':'10px',
-        	'text-align':'center',
-        	'background-color':'#EC6D51',
-        	'border-radius':'5px',
+            'color':options.color
         });
         function imgtype(){  //弹出框内容节点里的icon类型函数
-        	if(defaults.img == 'none'){
-        		contentBox.children('i').hide();
-        	}
-        	if(defaults.img == 'success'){
-        		contentBox.children('i').css({
-        			'background-position': '-30px 0'
-        		});
-        	}
-        	if(defaults.img == 'warning'){
-        		contentBox.children('i').css({
-        			'background':"url('../img/icon.png') no-repeat",
-        		});
-        	}
-        	if(defaults.img == 'error'){
-        		contentBox.children('i').css({
-        			'background-position': '-60px 0'
-        		});
-        	}
-        }
+            if(defaults.img == 'none'){
+                contentBox.children('i').hide();
+            }
+            if(defaults.img == 'success'){
+                contentBox.children('i').css({
+                    'background-position': '-30px 0'
+                });
+            }
+            if(defaults.img == 'warning'){
+                contentBox.children('i').css({
+                    'background':"url('../Images/icon.png') no-repeat",
+                });
+            }
+            if(defaults.img == 'error'){
+                contentBox.children('i').css({
+                    'background-position': '-60px 0'
+                });
+            }
+        };
+        function buttonhave(){
+            if(defaults.button == 'none'){
+                confirmBox.hide();
+            }
+            if(defaults.button == 'show'){
+                confirmBox.show();
+            }
+        };
         imgtype();
-        nodeWrapp.hover(function(e){
-			nodeWrapp.css({
-				'cursor':'move'
-			})
-		},function(){
-    		
-		});
-        confirmButton.on('click',function(e){  //弹出层隐藏
-        	var e = e || window.event;
-        	e.stopPropagation;
-        	nodeParent.hide();
-        })
+        buttonhave();
+        nodeClose.on('click',function(){
+            nodeParent.hide();
+        });
+        nodeClose.hover(function(e){
+            nodeClose.css({
+                'font-size': '28px'
+            })
+        },function(){
+            nodeClose.css({
+                'font-size': '26px'
+            })
+        });
+        confirmButton.on('click',options.click);
         var mx = 0,my = 0;      //鼠标x、y轴坐标（相对于left，top）
-    	var dx = 0,dy = 0;      //对话框坐标（同上）
-    	var isDraging = false;      //不可拖动
-    	function autoCenter(el){    //弹出框居中函数
+        var dx = 0,dy = 0;      //对话框坐标（同上）
+        var isDraging = false;      //不可拖动
+        function autoCenter(el){    //弹出框居中函数
             var bodyW = $(window).width();
             var bodyH = $(window).height();
             var elW = el.width();
@@ -128,15 +97,15 @@
             autoCenter(nodeBox);
         };
         nodeWrapp.mousedown(function(e){  //弹出框鼠标移动
-        	mx = e.pageX;
-        	my = e.pageY;
-        	dx = nodeBox.offset().left;
-            dy = nodeBox.offset().top;
-        	isDraging = true;
+            mx = e.pageX;
+            my = e.pageY;
+            dx = nodeBox.offset().left - $(window).scrollLeft();
+            dy = nodeBox.offset().top - $(window).scrollTop();
+            isDraging = true;
         });
         $(document).mousemove(function(e){
-        	var e = e || window.event;
-        	var x = e.pageX;      //移动时鼠标X坐标
+            var e = e || window.event;
+            var x = e.pageX;      //移动时鼠标X坐标
             var y = e.pageY;      //移动时鼠标Y坐标
             if(isDraging){        //判断对话框能否拖动
                     var moveX = dx + x - mx;      //移动后对话框新的left值
@@ -153,32 +122,36 @@
                     //重新设置对话框的left、top
                     $('.alertbox').css({"left":moveX + 'px',"top":moveY + 'px'});
                 };
-        })
-        nodeWrapp.mouseup(function(e){
-        	isDraging = false;
-        })
-    }
+        });
+        $(document).mouseup(function(e){
+            isDraging = false;
+        });
+    };
     $.fn.reconfirm = function(options){
         var defaults = { //默认参数
             backgroundcolor : "#72D1FF",
-            text : '这是默认值',
+            text : '',
             color:'#60B0D1',
+            prompt:'提示',
+            img:'none',
             width:371,
-            height:183,
-            img:'success',
+            button: 'show',
+            content:'',
             yes: function(){},
             no:function(){
-            	nodeParent.hide();
+                nodeParent.hide();
             }
         };
         options = $.extend(defaults,options);
         var nodeParent = $("<div class='parentbox'></div>");
-    	var nodeBox = $("<div class='alertbox'></div>");
-    	var contentBox = $("<div class='contentBox'><i></i><span>" + options.text + "</span></div>");
-    	var nodeWrapp = $("<div class='wrappbox'>提示</div>");
-    	var confirmBox = $("<div class='confirmbox'></div>");
-    	var confirmButton = $("<div class='confirmbutton'>确定</div>");
-    	var cancelButton = $("<div class='cancelbutton'>取消</div>")
+        var nodeBox = $("<div class='alertbox'></div>");
+        var contentBox = $("<div class='contentbox'><i></i><span>" + options.text + "</span></div>");
+        var nodeWrapp = $("<div class='wrappbox'>"+options.prompt+"</div>");
+        var confirmBox = $("<div class='confirmbox'></div>");
+        var confirmButton = $("<div class='confirmbutton'>确定</div>");
+        var cancelButton = $("<div class='cancelbutton'>取消</div>");
+        var nodeClose = $("<span class='closeicon'>×</span>");
+        var nodeform = $(options.content);
         $('body').prepend(nodeParent);
         nodeBox.append(contentBox);
         nodeBox.append(confirmBox);
@@ -186,116 +159,74 @@
         confirmBox.append(cancelButton);
         nodeParent.prepend(nodeBox);
         nodeBox.prepend(nodeWrapp);
-        nodeParent.css({
-        	width:100+'%',
-        	height:100+'%',
-        	'background-color':'rgba(0,0,0,0.3)',
-        	position:'fixed',
-        	top:0,
-        	left:0,
-        	'z-index':999999,
-        });
+        contentBox.after(nodeform);
+        nodeBox.append(nodeClose);
         nodeBox.css({
-        	position:'fixed',
-        	width:371,
-        	height:183,
-        	'background-color':'#fff',
-        	'border-radius':5+'px',
-        	'box-shadow': '1px 1px 50px rgba(0,0,0,.3)'
-
+            width:options.width,
         });
         nodeWrapp.css({
-        	position:'relative',
-        	width:100 +'%',
-        	height:50,
-        	'background-color':options.backgroundcolor,
-        	'border-radius':5+'px',
-        	'line-height':50+'px',
-        	color:'#fff',
-        	'padding-left':20,
+            'background-color':options.backgroundcolor,
         });
         contentBox.css({
-        	'text-align':'center',
-        	'padding':'20px 0',
-        	'color':options.color
-        });
-        contentBox.children('i').css({
-        	display:'inline-block',
-        	width:30,
-        	height:30,
-        	'background':"url('../img/icon.png') no-repeat",
-        	'vertical-align': 'top',
-        	'margin-right':'10px'
-        });
-        contentBox.children('span').css({
-        	'vertical-align': 'sub'
-        })
-        confirmBox.css({
-        	height:40,
-        	width:50+'%',
-        	'margin-left':'25%'
+            'color':options.color
         });
         confirmButton.css({
-        	float:"left",
-        	height:30,
-        	'line-height':'30px',
-        	padding:'0 15px',
-        	color:'#fff',
-        	'margin-top':'10px',
-        	'text-align':'center',
-        	'background-color':'#EC6D51',
-        	'border-radius':'5px',
+            float:"left"
         });
         cancelButton.css({
-        	float:"right",
-        	height:30,
-        	padding:'0 15px',
-        	color:'#fff',
-        	'margin-top':'10px',
-        	'text-align':'center',
-        	'background-color':options.backgroundcolor,
-        	'border-radius':'5px',
-        	'line-height':'30px'
+            float:"right",
+            'background-color':options.backgroundcolor,
+
         });
         function imgtype(){
-        	if(defaults.img == 'none'){
-        		contentBox.children('i').hide();
-        	}
-        	if(defaults.img == 'success'){
-        		contentBox.children('i').css({
-        			'background-position': '-30px 0'
-        		});
-        	}
-        	if(defaults.img == 'warning'){
-        		contentBox.children('i').css({
-        			'background':"url('../img/icon.png') no-repeat",
-        		});
-        	}
-        	if(defaults.img == 'error'){
-        		contentBox.children('i').css({
-        			'background-position': '-60px 0'
-        		});
-        	}
-        }
-        imgtype();
-        confirmButton.on('click',options.yes);  //点击确定的回调函数
-        cancelButton.on('click',options.no);
-        nodeWrapp.hover(function(e){
-			nodeWrapp.css({
-				'cursor':'move'
-			})
-		},function(){
-    		
-		});
-        var mx = 0,my = 0;      //鼠标x、y轴坐标（相对于left，top）
-    	var dx = 0,dy = 0;      //对话框坐标（同上）
-    	var isDraging = false;      //不可拖动
-    	if(document.attachEvent) {//ie的事件监听，拖拽div时禁止选中内容，firefox与chrome已在css中设置过-moz-user-select: none; -webkit-user-select: none;
-                g('dialog').attachEvent('onselectstart', function() {
-                  return false;
+            if(defaults.img == 'none'){
+                contentBox.children('i').hide();
+            }
+            if(defaults.img == 'success'){
+                contentBox.children('i').css({
+                    'background-position': '-30px 0'
                 });
             }
-    	function autoCenter(el){
+            if(defaults.img == 'warning'){
+                contentBox.children('i').css({
+                    'background':"url('../img/icon.png') no-repeat",
+                });
+            }
+            if(defaults.img == 'error'){
+                contentBox.children('i').css({
+                    'background-position': '-60px 0'
+                });
+            }
+        };
+        function buttonhave(){
+            if(defaults.button == 'none'){
+                confirmBox.hide();
+            }
+            if(defaults.button == 'show'){
+                confirmBox.show();
+            }
+        };
+
+        imgtype();
+        buttonhave();
+        confirmButton.on('click',options.yes);  //点击确定的回调函数
+        cancelButton.on('click',options.no);
+        nodeClose.on('click',function(){
+            nodeParent.hide();
+        });
+        nodeClose.hover(function(e){
+            nodeClose.css({
+                'font-size': '28px'
+            })
+        },function(){
+            nodeClose.css({
+                'font-size': '26px'
+            })
+        });
+        var mx = 0,my = 0;      //鼠标x、y轴坐标（相对于left，top）
+        var dx = 0,dy = 0;      //对话框坐标（同上）
+        var isDraging = false;      //不可拖动
+        function autoCenter(el){
             var bodyW = $(window).width();
             var bodyH = $(window).height();
             var elW = el.width();
@@ -307,15 +238,16 @@
             autoCenter(nodeBox);
         };
         nodeWrapp.mousedown(function(e){
-        	mx = e.pageX;
-        	my = e.pageY;
-        	dx = nodeBox.offset().left;
-            dy = nodeBox.offset().top;
-        	isDraging = true;
+            mx = e.pageX;
+            my = e.pageY;
+            dx = nodeBox.offset().left - $(window).scrollLeft();
+            dy = nodeBox.offset().top -$(window).scrollTop();
+            console.log(dx+","+dy)
+            isDraging = true;
         });
         $(document).mousemove(function(e){
-        	var e = e || window.event;
-        	var x = e.pageX;      //移动时鼠标X坐标
+            var e = e || window.event;
+            var x = e.pageX;      //移动时鼠标X坐标
             var y = e.pageY;      //移动时鼠标Y坐标
             if(isDraging){        //判断对话框能否拖动
                     var moveX = dx + x - mx;      //移动后对话框新的left值
@@ -332,11 +264,11 @@
                     //重新设置对话框的left、top
                     $('.alertbox').css({"left":moveX + 'px',"top":moveY + 'px'});
                 };
-        })
-        nodeWrapp.mouseup(function(e){
-        	isDraging = false;
-        })
-    }
+        });
+        $(document).mouseup(function(e){
+            isDraging = false;
+        });
+    };
     $.fn.retips = function(options){       
         var defaults = { //默认参数
             backgroundcolor : "red",
@@ -349,82 +281,78 @@
         var tipsBoxTriangle = $("<div class='tipsBoxTriangle'></div>");
         tipsBox.append(tipsBoxTriangle);
         tipsBox.css({
-        	position: 'absolute',
-			'background-color': options.backgroundcolor,
-			color: options.color,
-			padding: '5px 10px',
-			'white-space': 'nowrap',
-			'border-radius': '5px',
-			opacity:0,
+            'background-color': options.backgroundcolor,
+            color: options.color,
         });
-        tipsBoxTriangle.css({
-        	width: 0,
-			height: 0,
-			position: 'absolute',
-			
-    	}); 
-    	tipsBox.animate({opacity:1},2000,function(){
-    		tipsBox.delay(2000);
-    		tipsBox.fadeOut(2000);
-    	});
-    	function postips(){
-    		if(defaults.position == 'ptop'){
-    			tipsBox.css({
-    				bottom:'100%',
-    				'margin-bottom':'8px'
-    			});
-    			tipsBoxTriangle.css({
-    				top: '100%',
-					left: '10px',
-					border: '5px solid transparent',
-		        	'border-top': "5px solid  "+ options.backgroundcolor + "",
-		        	'border-right': "5px solid  "+ options.backgroundcolor + ""
-    			})
-    		}
-    		if(defaults.position == 'pbottom'){
-    			tipsBox.css({
-    				top:'100%',
-    				'margin-top':'8px'
-    			});
-    			tipsBoxTriangle.css({
-    				bottom: '100%',
-					left: '10px',
-					border: '5px solid transparent',
-		        	'border-bottom': "5px solid  "+ options.backgroundcolor + "",
-		        	'border-left': "5px solid  "+ options.backgroundcolor + ""
-    			})
-    		}
-    		if(defaults.position == 'pright'){
-    			tipsBox.css({
-    				left:'100%',
-    				'margin-left':'15px',
-    				top:0
-    			});
-    			tipsBoxTriangle.css({
-    				right: '100%',
-					top: '50%',
-					'margin-top':'-8px',
-					border: '8px solid transparent',
-		        	'border-right': "8px solid  "+ options.backgroundcolor + ""
-    			})
-    		}
-    		if(defaults.position == 'pleft'){
-    			tipsBox.css({
-    				right:'100%',
-    				'margin-right':'15px',
-    				top:0
-    			});
-    			tipsBoxTriangle.css({
-    				left: '100%',
-					top: '50%',
-					'margin-top':'-8px',
-					border: '8px solid transparent',
-		        	'border-left': "8px solid  "+ options.backgroundcolor + ""
-    			})
-    		}
-    	}
-    	postips();
+        tipsBox.fadeIn(2000,function(){
+            tipsBox.delay(2000);
+            tipsBox.fadeOut(1000,function(){
+                $(this).remove();
+            }); 
+        });
+        function postips(){
+            if(defaults.position == 'ptop'){
+                tipsBox.css({
+                    bottom:'100%',
+                    'margin-bottom':'10px',
+                    left:0
+                });
+                tipsBoxTriangle.css({
+                    top: '100%',
+                    left: '10px',
+                    border: '5px solid transparent',
+                    'border-top': "5px solid  "+ options.backgroundcolor + "",
+                    'border-right': "5px solid  "+ options.backgroundcolor + ""
+                })
+            }
+            if(defaults.position == 'pbottom'){
+                tipsBox.css({
+                    top:'100%',
+                    'margin-top':'10px',
+                    left:0
+                });
+                tipsBoxTriangle.css({
+                    bottom: '100%',
+                    left: '10px',
+                    border: '5px solid transparent',
+                    'border-bottom': "5px solid  "+ options.backgroundcolor + "",
+                    'border-left': "5px solid  "+ options.backgroundcolor + ""
+                })
+            }
+            if(defaults.position == 'pright'){
+                tipsBox.css({
+                    left:'100%',
+                    'margin-left':'15px',
+                    top:0
+                });
+                tipsBoxTriangle.css({
+                    right: '100%',
+                    top: '50%',
+                    'margin-top':'-8px',
+                    border: '8px solid transparent',
+                    'border-right': "8px solid  "+ options.backgroundcolor + ""
+                })
+            }
+            if(defaults.position == 'pleft'){
+                tipsBox.css({
+                    right:'100%',
+                    'margin-right':'15px',
+                    top:0
+                });
+                tipsBoxTriangle.css({
+                    left: '100%',
+                    top: '50%',
+                    'margin-top':'-8px',
+                    border: '8px solid transparent',
+                    'border-left': "8px solid  "+ options.backgroundcolor + ""
+                })
+            }
+        };
+        postips();
         $(this).append(tipsBox);
-    }        
+        $(this).css({
+            position:'relative'
+        });
+    };       
 })(jQuery)
  
